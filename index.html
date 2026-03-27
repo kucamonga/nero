@@ -4,199 +4,304 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kosmos | Sistema de Efemérides Real-Time</title>
+
     <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;400&display=swap');
 
         :root {
-            --fogo: #ef4444; --terra: #22c55e; --ar: #eab308; --agua: #3b82f6; --espirito: #a855f7; --gold: #d4af37;
+            --fogo: #ef4444;
+            --terra: #22c55e;
+            --ar: #eab308;
+            --agua: #3b82f6;
+            --espirito: #a855f7;
+            --gold: #d4af37;
         }
 
         body {
-            margin: 0; padding: 20px;
+            margin: 0;
+            padding: 20px;
             background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
-            color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; min-height: 100vh;
+            color: #e2e8f0;
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
         }
 
-        header { text-align: center; margin-bottom: 30px; }
-        h1 { font-family: 'Cinzel', serif; font-size: 3.5em; color: var(--gold); margin: 0; letter-spacing: 4px; }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-        .info-bar { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3em;
+            color: var(--gold);
+            margin: 0;
+            letter-spacing: 4px;
+        }
+
+        .info-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
         .status-pill {
-            background: rgba(255,255,255,0.05); padding: 8px 18px;
-            border-radius: 50px; border: 1px solid rgba(212, 175, 55, 0.3);
-            font-size: 0.9em; color: var(--gold); backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.05);
+            padding: 8px 18px;
+            border-radius: 50px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            font-size: 0.9em;
+            color: var(--gold);
         }
 
         .conjunctions-box {
-            max-width: 1200px; margin: 0 auto 30px; text-align: center;
-            padding: 15px; background: rgba(212, 175, 55, 0.1);
-            border: 1px solid var(--gold); border-radius: 8px; font-family: 'Cinzel';
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            text-align: center;
+            padding: 15px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            font-family: 'Cinzel';
         }
 
         .zodiac-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px; max-width: 1200px; margin: 0 auto 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto 40px;
         }
 
         .sign-card {
-            background: rgba(15, 23, 42, 0.8); border-radius: 12px; padding: 20px;
-            border-left: 5px solid #334155; transition: all 0.3s ease; position: relative;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 5px solid #334155;
+            transition: 0.3s;
         }
 
-        .active-sign { 
-            border: 1px solid var(--gold) !important; 
-            border-left: 5px solid var(--gold) !important;
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+        .active-sign {
+            border: 1px solid var(--gold);
+            border-left: 5px solid var(--gold);
+            box-shadow: 0 0 20px rgba(212,175,55,0.3);
         }
 
-        .sign-header { border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px; padding-bottom: 8px; }
-        .sign-name { font-family: 'Cinzel', serif; font-size: 1.3em; margin: 0; color: #fff; }
-        .sign-meta { font-size: 0.75em; color: #94a3b8; text-transform: uppercase; }
+        .sign-name {
+            font-family: 'Cinzel';
+            margin: 0 0 10px;
+        }
 
-        .planets-list { list-style: none; padding: 0; margin: 10px 0; min-height: 50px; }
-        .planets-list li { font-size: 0.9em; color: #fff; margin-bottom: 6px; font-weight: bold; }
+        .planets-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-        .corresp-row {
-            display: flex; justify-content: space-between;
-            background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px;
-            font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.2em;
+        .planets-list li {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        h2 {
+            text-align: center;
+            font-family: 'Cinzel';
+            color: var(--gold);
         }
 
         .elements-table {
-            max-width: 1200px; margin: 0 auto; background: rgba(30, 41, 59, 0.4);
-            border-radius: 12px; border: 1px solid #334155; overflow: hidden;
-        }
-
-        .el-header {
-            display: grid; grid-template-columns: 1fr 2fr 1.5fr 1fr;
-            padding: 15px; background: rgba(0,0,0,0.3); font-family: 'Cinzel', serif;
-            font-size: 0.8em; color: var(--gold); border-bottom: 1px solid #334155;
+            max-width: 900px;
+            margin: 20px auto;
         }
 
         .el-row {
-            display: grid; grid-template-columns: 1fr 2fr 1.5fr 1fr;
-            padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            align-items: center;
+            display: grid;
+            grid-template-columns: 1fr 2fr 2fr 1fr;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 </head>
+
 <body>
 
-    <header>
-        <h1>KOSMOS</h1>
-        <div class="info-bar">
-            <div id="moon-display" class="status-pill"></div>
-            <div id="sun-display" class="status-pill"></div>
-            <div class="status-pill">Efemérides em Tempo Real</div>
-        </div>
-    </header>
+<header>
+    <h1>KOSMOS</h1>
 
-    <div id="conjunctions" class="conjunctions-box">Buscando conjunções planetárias...</div>
-
-    <div class="zodiac-grid" id="zodiac-container"></div>
-
-    <h2 style="text-align: center; font-family: 'Cinzel'; color: var(--gold); margin-top: 40px;">Correspondências & Arcanos Regentes</h2>
-    <div class="elements-table">
-        <div class="el-header">
-            <span>Elemento</span><span>Atributos</span><span>Arcano Regente</span><span>Símbolos</span>
-        </div>
-        <div id="elements-container"></div>
+    <div class="info-bar">
+        <div id="moon-display" class="status-pill"></div>
+        <div id="sun-display" class="status-pill"></div>
+        <div class="status-pill">Tempo Real</div>
     </div>
+</header>
 
-    <script>
-        const hoje = new Date();
-        const observer = new Astronomy.Observer(0, 0, 0); // Observador padrão (Equador)
+<div id="conjunctions" class="conjunctions-box">
+    Carregando dados...
+</div>
 
-        // Sua função de cálculo da Lua
-        function calcularLua(d) {
-            const dias = (new Date(d) - new Date(2000, 0, 6)) / 86400000;
-            const fase = (dias % 29.53) / 29.53;
-            const f = fase < 0 ? fase + 1 : fase;
-            if (f < 0.25) return "🌒 Crescente";
-            if (f < 0.5) return "🌕 Cheia";
-            if (f < 0.75) return "🌘 Minguante";
-            return "🌑 Nova";
-        }
+<div id="zodiac-container" class="zodiac-grid"></div>
 
-        // Mapeamento de Longitude para Signo
-        function getSigno(lon) {
-            const signos = ["Áries", "Touro", "Gêmeos", "Câncer", "Leão", "Virgem", "Libra", "Escorpião", "Sagitário", "Capricórnio", "Aquário", "Peixes"];
-            return signos[Math.floor(lon / 30)];
-        }
+<h2>Elementos & Arcanos</h2>
 
-        const zodiacData = [
-            { id: 0, sign: "Áries", date: "21/03-19/04", el: "Fogo", h: "ה", g: "B", p: [] },
-            { id: 1, sign: "Touro", date: "20/04-20/05", el: "Terra", h: "ו", g: "Γ", p: [] },
-            { id: 2, sign: "Gêmeos", date: "21/05-20/06", el: "Ar", h: "ז", g: "Δ", p: [] },
-            { id: 3, sign: "Câncer", date: "21/06-22/07", el: "Água", h: "ח", g: "Z", p: [] },
-            { id: 4, sign: "Leão", date: "23/07-22/08", el: "Fogo", h: "ט", g: "K", p: [] },
-            { id: 5, sign: "Virgem", date: "23/08-22/09", el: "Terra", h: "י", g: "Λ", p: [] },
-            { id: 6, sign: "Libra", date: "23/09-22/10", el: "Ar", h: "כ", g: "M", p: [] },
-            { id: 7, sign: "Escorpião", date: "23/10-21/11", el: "Água", h: "ל", g: "N", p: [] },
-            { id: 8, sign: "Sagitário", date: "22/11-21/12", el: "Fogo", h: "מ", g: "Π", p: [] },
-            { id: 9, sign: "Capricórnio", date: "22/12-19/01", el: "Terra", h: "נ", g: "P", p: [] },
-            { id: 10, sign: "Aquário", date: "20/01-18/02", el: "Ar", h: "ס", g: "Σ", p: [] },
-            { id: 11, sign: "Peixes", date: "19/02-20/03", el: "Água", h: "ע", g: "T", p: [] }
-        ];
+<div id="elements-container" class="elements-table"></div>
 
-        // Cálculos Reais de Planetas
-        const corpos = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"];
-        const nomesPT = {"Sun":"Sol", "Moon":"Lua", "Mercury":"Mercúrio", "Venus":"Vênus", "Mars":"Marte", "Jupiter":"Júpiter", "Saturn":"Saturno", "Uranus":"Urano", "Neptune":"Netuno", "Pluto":"Plutão"};
+<script>
+const REFRESH_INTERVAL = 30000;
 
-        corpos.forEach(corpo => {
-            const pos = Astronomy.EclipticPos(corpo, hoje);
-            const signoNome = getSigno(pos.lon);
-            const alvo = zodiacData.find(z => z.sign === signoNome);
-            if(alvo) alvo.p.push(nomesPT[corpo]);
-        });
+let observer;
 
-        // Interface
-        const signoHoje = getSigno(Astronomy.EclipticPos("Sun", hoje).lon);
-        document.getElementById('moon-display').innerText = calcularLua(hoje);
-        document.getElementById('sun-display').innerText = `☀️ Sol em ${signoHoje}`;
+// ================= GEO =================
+function initObserver() {
+    return new Promise(resolve => {
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                observer = new Astronomy.Observer(
+                    pos.coords.latitude,
+                    pos.coords.longitude,
+                    0
+                );
+                resolve();
+            },
+            () => {
+                observer = new Astronomy.Observer(0,0,0);
+                resolve();
+            }
+        );
+    });
+}
 
-        // Detectar Conjunções
-        const conjuncoes = zodiacData.filter(z => z.p.length > 1);
-        document.getElementById('conjunctions').innerHTML = conjuncoes.length > 0 
-            ? `✨ Conjunção detectada em ${conjuncoes.map(c => `${c.sign} (${c.p.join(' + ')})`).join(' | ')}`
-            : "Não há conjunções planetárias exatas no momento.";
+// ================= LUA =================
+function calcularLua(d) {
+    const dias = (d - new Date(2000,0,6)) / 86400000;
+    const fase = ((dias % 29.53)+29.53)%29.53 / 29.53;
 
-        // Render Signos
-        const zContainer = document.getElementById('zodiac-container');
-        zodiacData.forEach(d => {
-            const active = d.sign === signoHoje ? 'active-sign' : '';
-            const color = d.el === "Fogo" ? "var(--fogo)" : d.el === "Terra" ? "var(--terra)" : d.el === "Ar" ? "var(--ar)" : "var(--agua)";
-            zContainer.innerHTML += `
-                <div class="sign-card ${active}" style="border-left-color: ${color}">
-                    <div class="sign-header">
-                        <h2 class="sign-name">${d.sign}</h2>
-                        <span class="sign-meta">${d.date} | ${d.el}</span>
-                    </div>
-                    <ul class="planets-list">${d.p.length ? d.p.map(p => `<li>🪐 ${p}</li>`).join('') : '<li>-</li>'}</ul>
-                    <div class="corresp-row"><span>${d.h}</span><span>${d.g}</span><span>${d.sign[0]}</span></div>
-                </div>`;
-        });
+    if (fase < 0.25) return "🌒 Crescente";
+    if (fase < 0.5) return "🌕 Cheia";
+    if (fase < 0.75) return "🌘 Minguante";
+    return "🌑 Nova";
+}
 
-        // Render Elementos (Com Arcanos da tabela original)
-        const elementsData = [
-            { nome: "Fogo", cor: "var(--fogo)", arcano: "O Julgamento", desc: "Vontade, Ação, Energia", simbolo: "☉ Z" },
-            { nome: "Água", cor: "var(--agua)", arcano: "O Enforcado", desc: "Emoção, Intuição", simbolo: "♃ Q" },
-            { nome: "Ar", cor: "var(--ar)", arcano: "O Louco", desc: "Mente, Sopro, Liberdade", simbolo: "♂ X" },
-            { nome: "Terra", cor: "var(--terra)", arcano: "O Mundo", desc: "Matéria, Estabilidade", simbolo: "♄ K" },
-            { nome: "Espírito", cor: "var(--espirito)", arcano: "A Roda da Fortuna", desc: "Quintaessência, Éter", simbolo: "♀ H" }
-        ];
+// ================= SIGNOS =================
+const signos = ["Áries","Touro","Gêmeos","Câncer","Leão","Virgem","Libra","Escorpião","Sagitário","Capricórnio","Aquário","Peixes"];
 
-        const eContainer = document.getElementById('elements-container');
-        elementsData.forEach(e => {
-            eContainer.innerHTML += `
-                <div class="el-row" style="color: ${e.cor}">
-                    <span class="el-name">${e.nome}</span>
-                    <span style="font-size:0.85em; opacity:0.9;">${e.desc}</span>
-                    <span style="font-style: italic;">${e.arcano}</span>
-                    <span style="text-align: right; font-family:'Cinzel';">${e.simbolo}</span>
-                </div>`;
-        });
-    </script>
+function getSigno(lon) {
+    return signos[Math.floor(lon/30)];
+}
+
+// ================= PLANETAS =================
+const corpos = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"];
+
+const nomes = {
+    Sun:"Sol", Moon:"Lua", Mercury:"Mercúrio", Venus:"Vênus",
+    Mars:"Marte", Jupiter:"Júpiter", Saturn:"Saturno",
+    Uranus:"Urano", Neptune:"Netuno", Pluto:"Plutão"
+};
+
+function gerarBase() {
+    return signos.map(s => ({ sign:s, planets:[] }));
+}
+
+// ================= CÁLCULO =================
+function calcularTudo() {
+    const hoje = new Date();
+    const zodiac = gerarBase();
+
+    corpos.forEach(c => {
+        const pos = Astronomy.EclipticPos(c, hoje);
+        const signo = getSigno(pos.lon);
+        zodiac.find(z => z.sign === signo).planets.push(nomes[c]);
+    });
+
+    return { hoje, zodiac };
+}
+
+// ================= RENDER =================
+function render(data) {
+    const { hoje, zodiac } = data;
+
+    const signoHoje = getSigno(Astronomy.EclipticPos("Sun", hoje).lon);
+
+    document.getElementById("moon-display").innerText = calcularLua(hoje);
+    document.getElementById("sun-display").innerText = "☀️ Sol em " + signoHoje;
+
+    renderSignos(zodiac, signoHoje);
+    renderConjuncoes(zodiac);
+    renderElementos();
+}
+
+function renderSignos(zodiac, ativo) {
+    const container = document.getElementById("zodiac-container");
+    container.innerHTML = "";
+
+    const frag = document.createDocumentFragment();
+
+    zodiac.forEach(z => {
+        const div = document.createElement("div");
+        div.className = "sign-card " + (z.sign === ativo ? "active-sign" : "");
+
+        div.innerHTML = `
+            <h3 class="sign-name">${z.sign}</h3>
+            <ul class="planets-list">
+                ${z.planets.length ? z.planets.map(p => `<li>🪐 ${p}</li>`).join("") : "<li>-</li>"}
+            </ul>
+        `;
+
+        frag.appendChild(div);
+    });
+
+    container.appendChild(frag);
+}
+
+function renderConjuncoes(zodiac) {
+    const conj = zodiac.filter(z => z.planets.length > 1);
+
+    document.getElementById("conjunctions").innerText =
+        conj.length
+            ? "✨ Conjunções: " + conj.map(c => `${c.sign} (${c.planets.join(" + ")})`).join(" | ")
+            : "Sem conjunções agora.";
+}
+
+function renderElementos() {
+    const el = [
+        {n:"Fogo",d:"Energia, ação",a:"Julgamento",s:"☉"},
+        {n:"Água",d:"Emoção",a:"Enforcado",s:"♃"},
+        {n:"Ar",d:"Mente",a:"Louco",s:"♂"},
+        {n:"Terra",d:"Matéria",a:"Mundo",s:"♄"},
+        {n:"Espírito",d:"Éter",a:"Roda",s:"♀"}
+    ];
+
+    const c = document.getElementById("elements-container");
+    c.innerHTML = "";
+
+    el.forEach(e=>{
+        c.innerHTML += `
+            <div class="el-row">
+                <span>${e.n}</span>
+                <span>${e.d}</span>
+                <span>${e.a}</span>
+                <span>${e.s}</span>
+            </div>
+        `;
+    });
+}
+
+// ================= LOOP =================
+function start() {
+    function update() {
+        render(calcularTudo());
+    }
+
+    update();
+    setInterval(update, REFRESH_INTERVAL);
+}
+
+// ================= INIT =================
+initObserver().then(start);
+</script>
+
 </body>
 </html>
