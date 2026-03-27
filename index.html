@@ -3,181 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kosmos | Astral & Elementos</title>
+    <title>Kosmos | Dashboard Astral em Tempo Real</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;400&display=swap');
 
         :root {
-            --fogo: #ef4444;
-            --terra: #22c55e;
-            --ar: #eab308;
-            --agua: #3b82f6;
-            --espirito: #a855f7;
+            --fogo: #ef4444; --terra: #22c55e; --ar: #eab308; --agua: #3b82f6; --espirito: #a855f7; --gold: #d4af37;
         }
 
         body {
-            margin: 0;
-            padding: 20px;
+            margin: 0; padding: 20px;
             background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
-            color: #e2e8f0;
-            font-family: 'Space Grotesk', sans-serif;
-            min-height: 100vh;
+            color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; min-height: 100vh;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 40px;
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-family: 'Cinzel', serif; font-size: 3.5em; color: var(--gold); margin-bottom: 5px; }
+
+        .info-bar {
+            display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;
         }
 
-        h1 {
-            font-family: 'Cinzel', serif;
-            font-size: 3.5em;
-            color: #d4af37;
-            margin-bottom: 5px;
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        .status-pill {
+            background: rgba(255,255,255,0.05); padding: 10px 20px;
+            border-radius: 50px; border: 1px solid rgba(212, 175, 55, 0.3);
+            font-size: 1.1em;
         }
 
-        .moon-phase {
-            font-size: 1.2em;
-            color: #cbd5e1;
-            background: rgba(255,255,255,0.05);
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 50px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+        .active-sign { 
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); 
+            border: 2px solid var(--gold) !important;
+            transform: scale(1.05);
         }
 
         .zodiac-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto 50px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px; max-width: 1200px; margin: 0 auto 50px;
         }
 
         .sign-card {
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 12px;
-            padding: 20px;
-            border-left: 5px solid #334155;
-            transition: all 0.3s ease;
+            background: rgba(15, 23, 42, 0.85); border-radius: 12px; padding: 20px;
+            border-left: 5px solid #334155; transition: all 0.3s ease;
+            position: relative; overflow: hidden;
         }
 
-        .sign-card:hover { transform: scale(1.02); }
-
-        .sign-header { border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; }
-        .sign-name { font-family: 'Cinzel', serif; font-size: 1.4em; margin: 0; color: #fff; }
-        .sign-date { font-size: 0.8em; color: #94a3b8; }
-
-        .planets-list { list-style: none; padding: 0; margin-bottom: 15px; min-height: 50px;}
-        .planets-list li { font-size: 0.9em; margin-bottom: 5px; color: #d1d5db; }
-
-        .corresp-row {
-            display: flex;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 8px;
-            font-family: 'Cinzel', serif;
-            color: #d4af37;
+        .arcano-label {
+            font-family: 'Cinzel', serif; font-size: 0.7em; color: var(--gold);
+            text-transform: uppercase; margin-top: 10px; display: block;
         }
 
-        /* Tabela de Elementos */
         .elements-table {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(30, 41, 59, 0.4);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #334155;
+            max-width: 1200px; margin: 0 auto; background: rgba(30, 41, 59, 0.4);
+            border-radius: 12px; border: 1px solid #334155;
         }
 
         .el-row {
-            display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
-            padding: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: grid; grid-template-columns: 1fr 2fr 1.5fr 1fr;
+            padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
             align-items: center;
         }
 
-        .el-name { font-weight: bold; font-family: 'Cinzel', serif; letter-spacing: 1px; }
-        .el-tag { font-size: 0.8em; opacity: 0.8; }
+        .el-name { font-weight: bold; font-family: 'Cinzel', serif; }
     </style>
 </head>
 <body>
 
     <header>
         <h1>KOSMOS</h1>
-        <div id="moon-display" class="moon-phase">Calculando Lua...</div>
+        <div class="info-bar">
+            <div id="date-display" class="status-pill"></div>
+            <div id="moon-display" class="status-pill"></div>
+            <div id="sun-display" class="status-pill"></div>
+        </div>
     </header>
 
     <div class="zodiac-grid" id="zodiac-container"></div>
 
-    <h2 style="text-align: center; font-family: 'Cinzel'; color: #d4af37;">Tabela de Elementos e Regências</h2>
+    <h2 style="text-align: center; font-family: 'Cinzel'; color: var(--gold);">Correspondências de Elementos e Arcanos</h2>
     <div class="elements-table" id="elements-container"></div>
 
     <script>
-        // Sua função de cálculo da Lua
+        const hoje = new Date();
+        
         function calcularLua(d) {
             const dias = (new Date(d) - new Date(2000, 0, 6)) / 86400000;
             const fase = (dias % 29.53) / 29.53;
-            const f = fase < 0 ? fase + 1 : fase; // Ajuste para datas passadas
-            if (f < 0.25) return "🌒 Lua Crescente";
-            if (f < 0.5) return "🌕 Lua Cheia";
-            if (f < 0.75) return "🌘 Lua Minguante";
-            return "🌑 Lua Nova";
+            const f = fase < 0 ? fase + 1 : fase;
+            if (f < 0.25) return "🌒 Crescente";
+            if (f < 0.5) return "🌕 Cheia";
+            if (f < 0.75) return "🌘 Minguante";
+            return "🌑 Nova";
         }
 
-        document.getElementById('moon-display').innerText = calcularLua(new Date());
+        function getSignoSolar(d) {
+            const m = d.getMonth() + 1;
+            const dia = d.getDate();
+            if ((m == 3 && dia >= 21) || (m == 4 && dia <= 19)) return "Áries";
+            if ((m == 4 && dia >= 20) || (m == 5 && dia <= 20)) return "Touro";
+            if ((m == 5 && dia >= 21) || (m == 6 && dia <= 20)) return "Gêmeos";
+            if ((m == 6 && dia >= 21) || (m == 7 && dia <= 22)) return "Câncer";
+            if ((m == 7 && dia >= 23) || (m == 8 && dia <= 22)) return "Leão";
+            if ((m == 8 && dia >= 23) || (m == 9 && dia <= 22)) return "Virgem";
+            if ((m == 9 && dia >= 23) || (m == 10 && dia <= 22)) return "Libra";
+            if ((m == 10 && dia >= 23) || (m == 11 && dia <= 21)) return "Escorpião";
+            if ((m == 11 && dia >= 22) || (m == 12 && dia <= 21)) return "Sagitário";
+            if ((m == 12 && dia >= 22) || (m == 1 && dia <= 19)) return "Capricórnio";
+            if ((m == 1 && dia >= 20) || (m == 2 && dia <= 18)) return "Aquário";
+            return "Peixes";
+        }
+
+        const signoAtual = getSignoSolar(hoje);
+        document.getElementById('date-display').innerText = hoje.toLocaleDateString('pt-BR');
+        document.getElementById('moon-display').innerText = calcularLua(hoje);
+        document.getElementById('sun-display').innerText = `☀️ Sol em ${signoAtual}`;
 
         const zodiacData = [
-            { sign: "Áries", date: "21/03 - 19/04", el: "Fogo", h: "ה", g: "B", p: ["Mercúrio"] },
-            { sign: "Touro", date: "20/04 - 20/05", el: "Terra", h: "ו", g: "Γ", p: ["Júpiter", "Urano"] },
-            { sign: "Gêmeos", date: "21/05 - 20/06", el: "Ar", h: "ז", g: "Δ", p: [] },
-            { sign: "Câncer", date: "21/06 - 22/07", el: "Água", h: "ח", g: "Z", p: ["Lua"] },
-            { sign: "Leão", date: "23/07 - 22/08", el: "Fogo", h: "ט", g: "K", p: [] },
-            { sign: "Virgem", date: "23/08 - 22/09", el: "Terra", h: "י", g: "Λ", p: [] },
-            { sign: "Libra", date: "23/09 - 22/10", el: "Ar", h: "כ", g: "M", p: ["Nodo Sul"] },
-            { sign: "Escorpião", date: "23/10 - 21/11", el: "Água", h: "ל", g: "N", p: [] },
-            { sign: "Sagitário", date: "22/11 - 21/12", el: "Fogo", h: "מ", g: "Π", p: [] },
-            { sign: "Capricórnio", date: "22/12 - 19/01", el: "Terra", h: "נ", g: "P", p: [] },
-            { sign: "Aquário", date: "20/01 - 18/02", el: "Ar", h: "ס", g: "Σ", p: ["Sol", "Plutão"] },
-            { sign: "Peixes", date: "19/02 - 20/03", el: "Água", h: "ע", g: "T", p: ["Marte", "Saturno"] }
+            { sign: "Áries", date: "21/03-19/04", el: "Fogo", h: "ה", g: "B", arcano: "O Imperador" },
+            { sign: "Touro", date: "20/04-20/05", el: "Terra", h: "ו", g: "Γ", arcano: "O Hierofante" },
+            { sign: "Gêmeos", date: "21/05-20/06", el: "Ar", h: "ז", g: "Δ", arcano: "Os Amantes" },
+            { sign: "Câncer", date: "21/06-22/07", el: "Água", h: "ח", g: "Z", arcano: "O Carro" },
+            { sign: "Leão", date: "23/07-22/08", el: "Fogo", h: "ט", g: "K", arcano: "A Força" },
+            { sign: "Virgem", date: "23/08-22/09", el: "Terra", h: "י", g: "Λ", arcano: "O Eremita" },
+            { sign: "Libra", date: "23/09-22/10", el: "Ar", h: "כ", g: "M", arcano: "A Justiça" },
+            { sign: "Escorpião", date: "23/10-21/11", el: "Água", h: "ל", g: "N", arcano: "A Morte" },
+            { sign: "Sagitário", date: "22/11-21/12", el: "Fogo", h: "מ", g: "Π", arcano: "A Temperança" },
+            { sign: "Capricórnio", date: "22/12-19/01", el: "Terra", h: "נ", g: "P", arcano: "O Diabo" },
+            { sign: "Aquário", date: "20/01-18/02", el: "Ar", h: "ס", g: "Σ", arcano: "A Estrela" },
+            { sign: "Peixes", date: "19/02-20/03", el: "Água", h: "ע", g: "T", arcano: "A Lua" }
         ];
 
         const elementsData = [
-            { nome: "Terra", cor: "var(--terra)", desc: "Estabilidade, Matéria, Nutrição", letra: "K", astro: "♄" },
-            { nome: "Água", cor: "var(--agua)", desc: "Emoção, Intuição, Fluidez", letra: "Q", astro: "♃" },
-            { nome: "Ar", cor: "var(--ar)", desc: "Mente, Comunicação, Liberdade", letra: "X", astro: "♂" },
-            { nome: "Fogo", cor: "var(--fogo)", desc: "Vontade, Ação, Transmutação", letra: "Z", astro: "☉" },
-            { nome: "Espírito", cor: "var(--espirito)", desc: "Unidade, Quintaessência, Éter", letra: "H", astro: "♀" }
+            { nome: "Fogo", cor: "var(--fogo)", arcano: "O Julgamento", letra: "Z", astro: "☉" },
+            { nome: "Água", cor: "var(--agua)", arcano: "O Enforcado", letra: "Q", astro: "♃" },
+            { nome: "Ar", cor: "var(--ar)", arcano: "O Louco", letra: "X", astro: "♂" },
+            { nome: "Terra", cor: "var(--terra)", arcano: "O Mundo", letra: "K", astro: "♄" },
+            { nome: "Espírito", cor: "var(--espirito)", arcano: "A Roda da Fortuna", letra: "H", astro: "♀" }
         ];
 
-        // Renderizar Signos
         const zContainer = document.getElementById('zodiac-container');
         zodiacData.forEach(d => {
+            const isCurrent = d.sign === signoAtual ? 'active-sign' : '';
             const color = d.el === "Fogo" ? "var(--fogo)" : d.el === "Terra" ? "var(--terra)" : d.el === "Ar" ? "var(--ar)" : "var(--agua)";
             zContainer.innerHTML += `
-                <div class="sign-card" style="border-left-color: ${color}">
-                    <div class="sign-header">
-                        <h2 class="sign-name">${d.sign}</h2>
-                        <span class="sign-date">${d.date} | ${d.el}</span>
+                <div class="sign-card ${isCurrent}" style="border-left-color: ${color}">
+                    <div style="font-family: 'Cinzel'; border-bottom: 1px solid #444; margin-bottom: 10px;">
+                        <h2 style="margin:0; font-size:1.2em;">${d.sign}</h2>
+                        <span style="font-size:0.7em; color:#888;">${d.date} | ${d.el}</span>
                     </div>
-                    <ul class="planets-list">${d.p.length ? d.p.map(p => `<li>✨ ${p}</li>`).join('') : '<li>-</li>'}</ul>
-                    <div class="corresp-row">
-                        <span>${d.h}</span> <span>${d.g}</span> <span>${d.sign[0]}</span>
+                    <span class="arcano-label">Arcano: ${d.arcano}</span>
+                    <div style="display:flex; justify-content:space-between; margin-top:15px; font-family:'Cinzel'; color:var(--gold); font-size:1.4em;">
+                        <span>${d.h}</span><span>${d.g}</span><span>${d.sign[0]}</span>
                     </div>
                 </div>`;
         });
 
-        // Renderizar Elementos
         const eContainer = document.getElementById('elements-container');
         elementsData.forEach(e => {
             eContainer.innerHTML += `
                 <div class="el-row" style="color: ${e.cor}">
                     <span class="el-name">${e.nome}</span>
-                    <span class="el-tag">${e.desc}</span>
-                    <span style="text-align: right; font-size: 1.5em;">${e.astro} ${e.letra}</span>
+                    <span style="font-size:0.8em; opacity:0.8;">Arcano: ${e.arcano}</span>
+                    <span style="text-align: center;">${e.astro} ${e.letra}</span>
+                    <span style="text-align: right; font-family:'Cinzel';">Regente</span>
                 </div>`;
         });
     </script>
