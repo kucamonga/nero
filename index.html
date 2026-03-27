@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kosmos | Posições Astrais</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Space+Grotesk:wght@300;400&display=swap');
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            color: #e2e8f0;
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3em;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            font-size: 1.1em;
+            color: #94a3b8;
+        }
+
+        .zodiac-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .sign-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .sign-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.2);
+            border-color: #d4af37;
+        }
+
+        .sign-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5em;
+            color: #f8fafc;
+            border-bottom: 1px solid #475569;
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .planets-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .planets-list li {
+            background: rgba(15, 23, 42, 0.6);
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .empty-sign {
+            color: #64748b;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Kosmos Map</h1>
+        <p class="subtitle">Posicionamento atual dos astros no Zodíaco</p>
+    </header>
+
+    <div class="zodiac-grid" id="zodiac-container">
+        </div>
+
+    <script>
+        // Dados simulados (Mock). Para dados reais, seria necessário conectar a uma API de efemérides.
+        const ephemerisData = {
+            "Áries": ["Mercúrio", "Quíron"],
+            "Touro": ["Júpiter", "Urano"],
+            "Gêmeos": [],
+            "Câncer": ["Lua"],
+            "Leão": [],
+            "Virgem": [],
+            "Libra": ["Nodo Sul"],
+            "Escorpião": [],
+            "Sagitário": [],
+            "Capricórnio": [],
+            "Aquário": ["Sol", "Plutão"],
+            "Peixes": ["Vênus", "Marte", "Saturno", "Netuno"]
+        };
+
+        const container = document.getElementById('zodiac-container');
+
+        Object.keys(ephemerisData).forEach(sign => {
+            const planets = ephemerisData[sign];
+            const card = document.createElement('div');
+            card.className = 'sign-card';
+            
+            let planetsHTML = '';
+            if (planets.length > 0) {
+                planetsHTML = `<ul class="planets-list">` + 
+                    planets.map(planet => `<li>✨ ${planet}</li>`).join('') + 
+                    `</ul>`;
+            } else {
+                planetsHTML = `<p class="empty-sign">Nenhum astro principal no momento.</p>`;
+            }
+
+            card.innerHTML = `
+                <h2 class="sign-name">${sign}</h2>
+                ${planetsHTML}
+            `;
+            
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>
