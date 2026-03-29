@@ -1,184 +1,137 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>KOSMOS | Astro Engine</title>
-
-<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-
-<style>
-body {
-    margin:0;
-    background:#0b0f1a;
-    color:#e2e8f0;
-    font-family:Arial;
-}
-
-h1 {
-    text-align:center;
-    color:gold;
-}
-
-.grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:15px;
-    padding:20px;
-}
-
-.card {
-    background:#111827;
-    padding:15px;
-    border-radius:10px;
-}
-
-.alert {
-    background:#7c2d12;
-    padding:10px;
-    margin:10px;
-    border-radius:6px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifa Solidária</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; text-align: center; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .info { background: #e9ecef; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .number { padding: 15px 0; background: #28a745; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; user-select: none; }
+        .number.selected { background: #ffc107; color: #333; }
+        .number.taken { background: #dc3545; cursor: not-allowed; }
+        .checkout { margin-top: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; display: none; }
+        input[type="text"] { padding: 10px; width: 80%; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px;}
+        button:hover { background: #0056b3; }
+        .whatsapp-btn { background: #25D366; }
+        .whatsapp-btn:hover { background: #1ebe57; }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <h1>Rifa Solidária</h1>
+        <div class="info">
+            <p><strong>Prêmio:</strong> [Ainda não está disponível]</p>
+            <p><strong>Data do Sorteio:</strong> 01 de Maio</p>
+            <p><strong>Valor por número:</strong> R$ 50,00</p>
+        </div>
 
-<h1>KOSMOS 🔮</h1>
+        <h3>Escolha seus números:</h3>
+        <div class="grid" id="grid"></div>
 
-<div id="status" class="grid"></div>
-<div id="planets" class="grid"></div>
-<div id="houses" class="grid"></div>
-<div id="aspects" class="grid"></div>
-<div id="alerts"></div>
+        <div id="checkout" class="checkout">
+            <h3>Confirmar Reserva</h3>
+            <p>Números selecionados: <span id="selected-numbers">Nenhum</span></p>
+            <p>Total a pagar: <strong>R$ <span id="total-price">0</span>,00</strong></p>
+            
+            <input type="text" id="user-name" placeholder="Digite seu Nome Completo" required>
+            
+            <div id="payment-info" style="display:none; margin-top: 15px;">
+                <p>Faça o Pix para a chave:</p>
+                <h3 style="color: #007bff;">segatto800@gmail.com</h3>
+                <img src="https://via.placeholder.com/150?text=Gerar+QR+Code+Pix" alt="QR Code Pix" style="margin-bottom: 15px;">
+                <br>
+                <button class="whatsapp-btn" onclick="sendWhatsApp()">Enviar Comprovante no WhatsApp</button>
+            </div>
+            
+            <button id="reserve-btn" onclick="reserveNumbers()">Reservar e Pagar</button>
+        </div>
+    </div>
 
-<script>
-// ================= GEO =================
-let observer;
+    <script>
+        const grid = document.getElementById('grid');
+        const checkoutDiv = document.getElementById('checkout');
+        const selectedText = document.getElementById('selected-numbers');
+        const totalPriceText = document.getElementById('total-price');
+        let selectedNumbers = [];
+        let takenNumbers = JSON.parse(localStorage.getItem('rifaTakenNumbers')) || {};
 
-async function initGeo() {
-    return new Promise(res=>{
-        navigator.geolocation.getCurrentPosition(pos=>{
-            observer = new Astronomy.Observer(
-                pos.coords.latitude,
-                pos.coords.longitude,
-                0
-            );
-            res();
-        }, ()=>{
-            observer = new Astronomy.Observer(0,0,0);
-            res();
-        });
-    });
-}
+        // Gerar os 100 números
+        for (let i = 1; i <= 100; i++) {
+            let div = document.createElement('div');
+            div.classList.add('number');
+            div.innerText = i;
+            
+            if (takenNumbers[i]) {
+                div.classList.add('taken');
+            } else {
+                div.onclick = () => toggleNumber(div, i);
+            }
+            grid.appendChild(div);
+        }
 
-// ================= PLANETAS =================
-const bodies = ["Sun","Moon","Mercury","Venus","Mars","Jupiter","Saturn","Uranus","Neptune","Pluto"];
+        function toggleNumber(element, num) {
+            if (element.classList.contains('taken')) return;
+            
+            if (selectedNumbers.includes(num)) {
+                selectedNumbers = selectedNumbers.filter(n => n !== num);
+                element.classList.remove('selected');
+            } else {
+                selectedNumbers.push(num);
+                element.classList.add('selected');
+            }
+            updateCheckout();
+        }
 
-function getPositions(date){
-    return bodies.map(b=>{
-        const pos = Astronomy.EclipticPos(b, date);
-        return {name:b, lon:pos.lon};
-    });
-}
+        function updateCheckout() {
+            if (selectedNumbers.length > 0) {
+                checkoutDiv.style.display = 'block';
+                selectedText.innerText = selectedNumbers.join(', ');
+                totalPriceText.innerText = selectedNumbers.length * 50;
+            } else {
+                checkoutDiv.style.display = 'none';
+                document.getElementById('payment-info').style.display = 'none';
+                document.getElementById('reserve-btn').style.display = 'inline-block';
+            }
+        }
 
-// ================= SIGNOS =================
-const signos = ["Áries","Touro","Gêmeos","Câncer","Leão","Virgem","Libra","Escorpião","Sagitário","Capricórnio","Aquário","Peixes"];
-
-function getSign(lon){
-    return signos[Math.floor(lon/30)];
-}
-
-// ================= LUA REAL =================
-function moonPhase(date){
-    const phase = Astronomy.MoonPhase(date);
-    return phase.toFixed(2) + "%";
-}
-
-// ================= ASCENDENTE =================
-function getAscendente(date){
-    const sidereal = Astronomy.SiderealTime(date);
-    const asc = (sidereal * 15) % 360;
-    return getSign(asc);
-}
-
-// ================= ASPECTOS =================
-function calcAspects(planets){
-    const aspects = [];
-    const angles = [
-        {name:"Conjunção", deg:0},
-        {name:"Oposição", deg:180},
-        {name:"Trígono", deg:120},
-        {name:"Quadratura", deg:90}
-    ];
-
-    for(let i=0;i<planets.length;i++){
-        for(let j=i+1;j<planets.length;j++){
-            let diff = Math.abs(planets[i].lon - planets[j].lon);
-            if(diff>180) diff = 360-diff;
-
-            angles.forEach(a=>{
-                if(Math.abs(diff - a.deg) < 5){
-                    aspects.push(`${a.name}: ${planets[i].name} - ${planets[j].name}`);
+        function reserveNumbers() {
+            const name = document.getElementById('user-name').value;
+            if (!name) {
+                alert("Por favor, digite seu nome.");
+                return;
+            }
+            
+            selectedNumbers.forEach(num => {
+                takenNumbers[num] = name;
+            });
+            localStorage.setItem('rifaTakenNumbers', JSON.stringify(takenNumbers));
+            
+            document.getElementById('reserve-btn').style.display = 'none';
+            document.getElementById('payment-info').style.display = 'block';
+            
+            // Atualizar grid visualmente
+            Array.from(grid.children).forEach(child => {
+                if (selectedNumbers.includes(parseInt(child.innerText))) {
+                    child.className = 'number taken';
+                    child.onclick = null;
                 }
             });
         }
-    }
-    return aspects;
-}
 
-// ================= ALERTAS =================
-async function sendAlert(msg){
-    document.getElementById("alerts").innerHTML += `<div class="alert">${msg}</div>`;
-
-    await fetch("/.netlify/functions/log-event", {
-        method:"POST",
-        body: JSON.stringify({msg})
-    });
-}
-
-// ================= RENDER =================
-function render(){
-    const now = new Date();
-
-    const planets = getPositions(now);
-
-    // STATUS
-    document.getElementById("status").innerHTML = `
-        <div class="card">Lua: ${moonPhase(now)}</div>
-        <div class="card">Ascendente: ${getAscendente(now)}</div>
-    `;
-
-    // PLANETAS
-    document.getElementById("planets").innerHTML =
-        planets.map(p=>`<div class="card">${p.name} em ${getSign(p.lon)}</div>`).join("");
-
-    // CASAS (simplificado)
-    document.getElementById("houses").innerHTML =
-        `<div class="card">Sistema de casas baseado no Ascendente (${getAscendente(now)})</div>`;
-
-    // ASPECTOS
-    const aspects = calcAspects(planets);
-    document.getElementById("aspects").innerHTML =
-        aspects.map(a=>`<div class="card">${a}</div>`).join("");
-
-    // ALERTAS
-    if(aspects.some(a=>a.includes("Conjunção"))){
-        sendAlert("🔔 Conjunção detectada!");
-    }
-}
-
-// ================= LOOP =================
-async function start(){
-    await initGeo();
-    render();
-    setInterval(render, 20000);
-}
-
-start();
-</script>
-
+        function sendWhatsApp() {
+            const name = document.getElementById('user-name').value;
+            const nums = selectedNumbers.join(', ');
+            const total = selectedNumbers.length * 50;
+            const msg = `Olá! Meu nome é ${name}. Reservei os números: ${nums} na rifa solidária. O valor total deu R$ ${total},00. Segue o meu comprovante de pagamento Pix:`;
+            const url = `https://wa.me/5527992625772?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+            setTimeout(() => location.reload(), 2000); // recarrega a página após enviar
+        }
+    </script>
 </body>
 </html>
-
