@@ -1,65 +1,19 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administração - Rifa</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { color: #333; text-align: center; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; }
-        .list-item:last-child { border-bottom: none; }
-        button { padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #c82333; }
-        .nav-link { display: block; text-align: center; margin-bottom: 20px; color: #007bff; text-decoration: none; }
-    </style>
+<meta charset="UTF-8">
+<title>Admin</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <a href="index.html" class="nav-link">← Voltar para a Rifa</a>
-        <h1>Controle de Números</h1>
-        <p style="text-align: center;">Números reservados e aguardando/com pagamento confirmado.</p>
-        
-        <div id="admin-list"></div>
-    </div>
 
-    <script>
-        const adminList = document.getElementById('admin-list');
-        
-        function loadAdminList() {
-            let takenNumbers = JSON.parse(localStorage.getItem('rifaTakenNumbers')) || {};
-            adminList.innerHTML = '';
-            
-            const numbers = Object.keys(takenNumbers).sort((a, b) => a - b);
-            
-            if (numbers.length === 0) {
-                adminList.innerHTML = '<p style="text-align:center; color:#777;">Nenhum número foi reservado ainda.</p>';
-                return;
-            }
+<h1>Administração</h1>
 
-            numbers.forEach(num => {
-                let div = document.createElement('div');
-                div.classList.add('list-item');
-                div.innerHTML = `
-                    <span><strong>Nº ${num}</strong> - ${takenNumbers[num]}</span>
-                    <button onclick="liberarNumero(${num})">Liberar</button>
-                `;
-                adminList.appendChild(div);
-            });
-        }
+<div id="lista"></div>
 
-        function liberarNumero(num) {
-            if(confirm(`Tem certeza que deseja liberar o número ${num}?`)) {
-                let takenNumbers = JSON.parse(localStorage.getItem('rifaTakenNumbers')) || {};
-                delete takenNumbers[num];
-                localStorage.setItem('rifaTakenNumbers', JSON.stringify(takenNumbers));
-                loadAdminList();
-            }
-        }
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+<script src="admin.js"></script>
 
-        // Carregar a lista ao abrir a página
-        loadAdminList();
-    </script>
 </body>
 </html>
