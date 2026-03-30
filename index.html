@@ -1,119 +1,242 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifa Solidária - 1º de Maio</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; text-align: center; padding: 10px; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 20px 0; }
-        .number { padding: 12px 0; background: #e2e8f0; color: #475569; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; border: 2px solid transparent; }
-        .number.selected { background: #3b82f6; color: white; transform: scale(1.05); }
-        .number.taken { background: #ef4444; color: white; cursor: not-allowed; opacity: 0.6; }
-        .info-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
-        .btn-pay { background: #22c55e; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
-        .pix-area { display: none; margin-top: 20px; padding: 15px; border: 2px dashed #22c55e; border-radius: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rifa Solidária - 1º de Maio</title>
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+        margin: 0;
+        padding: 15px;
+        color: #1e293b;
+    }
+
+    .container {
+        max-width: 520px;
+        margin: auto;
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px);}
+        to { opacity: 1; transform: translateY(0);}
+    }
+
+    h2 {
+        margin-bottom: 10px;
+        color: #1e3a8a;
+    }
+
+    .info-box {
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 5px solid #3b82f6;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .number {
+        padding: 12px 0;
+        background: #e2e8f0;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.25s;
+        border: 2px solid transparent;
+    }
+
+    .number:hover {
+        transform: scale(1.05);
+        background: #cbd5f5;
+    }
+
+    .number.selected {
+        background: #2563eb;
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .number.taken {
+        background: #ef4444;
+        color: white;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        font-size: 14px;
+    }
+
+    .btn-pay {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        border: none;
+        padding: 15px;
+        width: 100%;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.3s;
+    }
+
+    .btn-pay:hover {
+        transform: scale(1.03);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .pix-area {
+        display: none;
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 12px;
+        background: #ecfdf5;
+        border: 2px dashed #22c55e;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .whatsapp {
+        background: #25D366 !important;
+    }
+
+    .highlight {
+        font-size: 18px;
+        font-weight: bold;
+        color: #16a34a;
+    }
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <h2>Rifa Solidária</h2>
+    <h2>🎟️ Rifa Solidária</h2>
+
     <div class="info-box">
-        <p><strong>Prêmio:</strong> <span id="premio">Ainda não disponível</span></p>
-        <p><strong>Data:</strong> 01 de Maio</p>
-        <p><strong>Valor:</strong> R$ 50,00 por número</p>
+        <p><strong>🎁 Prêmio:</strong> <span id="premio">Ainda não disponível</span></p>
+        <p><strong>📅 Data:</strong> 01 de Maio</p>
+        <p><strong>💰 Valor:</strong> R$ 50,00 por número</p>
     </div>
 
     <div class="grid" id="rifa-grid">Carregando números...</div>
 
     <div id="form-area" style="display:none;">
-        <p>Números selecionados: <strong id="selected-list"></strong></p>
-        <p>Total: <strong id="total-val">R$ 0,00</strong></p>
+        <p>Números: <strong id="selected-list"></strong></p>
+        <p>Total: <span class="highlight" id="total-val">R$ 0,00</span></p>
+
         <input type="text" id="client-name" placeholder="Seu nome completo">
+
         <button class="btn-pay" onclick="confirmarReserva()">Reservar Números</button>
     </div>
 
     <div id="pix-area" class="pix-area">
-        <p>Pague via PIX:</p>
-        <strong style="font-size: 18px;">segatto800@gmail.com</strong>
-        <p style="font-size: 12px; color: #64748b;">Envie o comprovante agora:</p>
-        <button class="btn-pay" style="background: #25D366;" onclick="irParaWhats()">Enviar Comprovante (WhatsApp)</button>
+        <p>💳 Pague via PIX:</p>
+        <div class="highlight">segatto800@gmail.com</div>
+
+        <p style="font-size: 12px;">Envie o comprovante:</p>
+
+        <button class="btn-pay whatsapp" onclick="irParaWhats()">
+            Enviar no WhatsApp
+        </button>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwaXdEXDElEISomHl3TJ6Cmlqp69N9r5BMocDPqppeQGaOVrorakVCW7v0Zbee9HcmT/exec";
-    let selecionados = [];
-    let ocupados = [];
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwaXdEXDElEISomHl3TJ6Cmlqp69N9r5BMocDPqppeQGaOVrorakVCW7v0Zbee9HcmT/exec";
 
-    // Busca números ocupados na planilha
-    async function carregarDados() {
-        const response = await fetch(SCRIPT_URL);
-        const data = await response.json();
-        ocupados = data.map(item => parseInt(item.numero));
-        renderGrid();
-    }
+let selecionados = [];
+let ocupados = [];
 
-    function renderGrid() {
-        const grid = document.getElementById('rifa-grid');
-        grid.innerHTML = '';
-        for (let i = 1; i <= 100; i++) {
-            const div = document.createElement('div');
-            div.className = 'number' + (ocupados.includes(i) ? ' taken' : '');
-            div.innerText = i;
-            if (!ocupados.includes(i)) {
-                div.onclick = () => toggle(i, div);
-            }
-            grid.appendChild(div);
+async function carregarDados() {
+    const response = await fetch(SCRIPT_URL);
+    const data = await response.json();
+    ocupados = data.map(item => parseInt(item.numero));
+    renderGrid();
+}
+
+function renderGrid() {
+    const grid = document.getElementById('rifa-grid');
+    grid.innerHTML = '';
+    for (let i = 1; i <= 100; i++) {
+        const div = document.createElement('div');
+        div.className = 'number' + (ocupados.includes(i) ? ' taken' : '');
+        div.innerText = i;
+
+        if (!ocupados.includes(i)) {
+            div.onclick = () => toggle(i, div);
         }
+
+        grid.appendChild(div);
     }
+}
 
-    function toggle(num, el) {
-        if (selecionados.includes(num)) {
-            selecionados = selecionados.filter(n => n !== num);
-            el.classList.remove('selected');
-        } else {
-            selecionados.push(num);
-            el.classList.add('selected');
-        }
-        atualizarResumo();
+function toggle(num, el) {
+    if (selecionados.includes(num)) {
+        selecionados = selecionados.filter(n => n !== num);
+        el.classList.remove('selected');
+    } else {
+        selecionados.push(num);
+        el.classList.add('selected');
     }
+    atualizarResumo();
+}
 
-    function atualizarResumo() {
-        const form = document.getElementById('form-area');
-        form.style.display = selecionados.length > 0 ? 'block' : 'none';
-        document.getElementById('selected-list').innerText = selecionados.join(', ');
-        document.getElementById('total-val').innerText = `R$ ${selecionados.length * 50},00`;
-    }
+function atualizarResumo() {
+    const form = document.getElementById('form-area');
+    form.style.display = selecionados.length > 0 ? 'block' : 'none';
 
-    async function confirmarReserva() {
-        const nome = document.getElementById('client-name').value;
-        if (!nome) return alert("Digite seu nome!");
+    document.getElementById('selected-list').innerText = selecionados.join(', ');
+    document.getElementById('total-val').innerText = `R$ ${selecionados.length * 50},00`;
+}
 
-        const btn = document.querySelector('.btn-pay');
-        btn.innerText = "Salvando...";
-        btn.disabled = true;
+async function confirmarReserva() {
+    const nome = document.getElementById('client-name').value;
+    if (!nome) return alert("Digite seu nome!");
 
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'reservar', nome: nome, numeros: selecionados })
-        });
+    const btn = document.querySelector('.btn-pay');
+    btn.innerText = "Salvando...";
+    btn.disabled = true;
 
-        document.getElementById('form-area').style.display = 'none';
-        document.getElementById('pix-area').style.display = 'block';
-    }
+    await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'reservar', nome: nome, numeros: selecionados })
+    });
 
-    function irParaWhats() {
-        const nome = document.getElementById('client-name').value;
-        const msg = `Olá! Meu nome é ${nome}. Reservei os números: ${selecionados.join(', ')}. Total: R$ ${selecionados.length * 50},00. Segue o comprovante!`;
-        window.open(`https://wa.me/5527992625772?text=${encodeURIComponent(msg)}`, '_blank');
-        location.reload();
-    }
+    document.getElementById('form-area').style.display = 'none';
+    document.getElementById('pix-area').style.display = 'block';
+}
 
-    carregarDados();
+function irParaWhats() {
+    const nome = document.getElementById('client-name').value;
+    const msg = `Olá! Meu nome é ${nome}. Reservei os números: ${selecionados.join(', ')}. Total: R$ ${selecionados.length * 50},00. Segue o comprovante!`;
+
+    window.open(`https://wa.me/5527992625772?text=${encodeURIComponent(msg)}`, '_blank');
+    location.reload();
+}
+
+carregarDados();
 </script>
+
 </body>
 </html>

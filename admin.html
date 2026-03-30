@@ -1,28 +1,92 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - Liberar Números</title>
-    <style>
-        body { font-family: sans-serif; background-color: #f1f5f9; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        h1 { color: #1e293b; text-align: center; margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f8fafc; font-size: 13px; color: #64748b; }
-        .btn-liberar { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        .btn-liberar:hover { background: #dc2626; }
-        .btn-atualizar { background: #3b82f6; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    margin: 0;
+    padding: 20px;
+    color: #1e293b;
+}
+
+.container {
+    max-width: 950px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+h1 {
+    text-align: center;
+    color: #0f172a;
+}
+
+.btn-atualizar {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.btn-atualizar:hover {
+    transform: scale(1.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 13px;
+}
+
+th, td {
+    padding: 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+tr:hover {
+    background: #f8fafc;
+}
+
+.btn-liberar {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-liberar:hover {
+    background: #dc2626;
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <h1>Controle de Reservas</h1>
+    <h1>📊 Controle de Reservas</h1>
+
     <button class="btn-atualizar" onclick="buscarDados()">🔄 Atualizar Lista</button>
-    
-    <table id="admin-table">
+
+    <table>
         <thead>
             <tr>
                 <th>Nº</th>
@@ -31,64 +95,69 @@
                 <th>Ação</th>
             </tr>
         </thead>
-        <tbody id="table-body">
-            </tbody>
+
+        <tbody id="table-body"></tbody>
     </table>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwaXdEXDElEISomHl3TJ6Cmlqp69N9r5BMocDPqppeQGaOVrorakVCW7v0Zbee9HcmT/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwaXdEXDElEISomHl3TJ6Cmlqp69N9r5BMocDPqppeQGaOVrorakVCW7v0Zbee9HcmT/exec";
 
-    async function buscarDados() {
-        const tbody = document.getElementById('table-body');
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Buscando na planilha...</td></tr>';
-        
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-            tbody.innerHTML = '';
+async function buscarDados() {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Carregando...</td></tr>';
 
-            data.sort((a, b) => a.numero - b.numero);
+    try {
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
 
-            data.forEach(item => {
-                const row = `
-                    <tr>
-                        <td><strong>${String(item.numero).padStart(2, '0')}</strong></td>
-                        <td>${item.nome}</td>
-                        <td>${item.data}</td>
-                        <td>
-                            <button class="btn-liberar" onclick="liberarNumero(${item.numero})">Liberar Número</button>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-        } catch (e) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red">Erro de conexão.</td></tr>';
-        }
+        tbody.innerHTML = '';
+
+        data.sort((a, b) => a.numero - b.numero);
+
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${String(item.numero).padStart(2, '0')}</strong></td>
+                    <td>${item.nome}</td>
+                    <td>${item.data}</td>
+                    <td>
+                        <button class="btn-liberar" onclick="liberarNumero(${item.numero})">
+                            Liberar
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:red">Erro ao conectar</td></tr>';
     }
+}
 
-    async function liberarNumero(num) {
-        if (!confirm(`Deseja realmente liberar o número ${num} e removê-lo da planilha?`)) return;
+async function liberarNumero(num) {
+    if (!confirm(`Deseja liberar o número ${num}?`)) return;
 
-        // Desabilita o botão temporariamente
-        event.target.innerText = "Removendo...";
-        event.target.disabled = true;
+    event.target.innerText = "Removendo...";
+    event.target.disabled = true;
 
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'liberar', numero: num })
-            });
-            alert(`Número ${num} liberado com sucesso!`);
-            buscarDados(); // Recarrega a lista
-        } catch (e) {
-            alert("Erro ao tentar liberar.");
-            buscarDados();
-        }
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'liberar', numero: num })
+        });
+
+        alert(`Número ${num} liberado!`);
+        buscarDados();
+
+    } catch (e) {
+        alert("Erro!");
+        buscarDados();
     }
+}
 
-    buscarDados();
+buscarDados();
 </script>
+
 </body>
 </html>
