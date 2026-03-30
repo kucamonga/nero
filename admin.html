@@ -1,19 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Admin</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Rifa</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #1e293b; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; color: #64748b; text-transform: uppercase; font-size: 12px; }
+        .btn-refresh { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-bottom: 10px; }
+        .status-badge { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    </style>
 </head>
 <body>
 
-<h1>Administração</h1>
+<div class="container">
+    <h1>Controle da Rifa</h1>
+    <p style="text-align:center">Visualize aqui todos os números marcados na planilha.</p>
+    
+    <button class="btn-refresh" onclick="buscarDados()">🔄 Atualizar Lista</button>
+    
+    <table id="admin-table">
+        <thead>
+            <tr>
+                <th>Número</th>
+                <th>Nome do Comprador</th>
+                <th>Data/Hora da Reserva</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <tr><td colspan="4" style="text-align:center">Carregando dados da planilha...</td></tr>
+        </tbody>
+    </table>
+</div>
 
-<div id="lista"></div>
+<script>
+    // COLE O MESMO LINK DO GOOGLE SCRIPT AQUI
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSbmrwCP82mvB-9h53qUmrAhCbXtzrvzk4ihcue7ObD11DNbB3BpLu24hkWObpmeNR/exec";
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-<script src="admin.js"></script>
+    async function buscarDados() {
+        const tbody = document.getElementById('table-body');
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            
+            tbody.innerHTML = '';
 
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhum número reservado ainda.</td></tr>';
+                return;
+            }
+
+            // Ordenar por número da rifa
+            data.sort((a, b) => a.numero - b.numero);
+
+            data.forEach(item => {
+                const dataFormatada = new Date(item.data).toLocaleString('pt-BR');
+                const row = `
+                    <tr>
+                        <td><strong>${String(item.numero).padStart(2, '0')}</strong></td>
+                        <td>${item.nome}</td>
+                        <td>${dataFormatada}</td>
+                        <td><span class="status-badge">Reservado</span></td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red">Erro ao carregar dados. Verifique o link do Script.</td></tr>';
+        }
+    }
+
+    // Carrega ao abrir a página
+    buscarDados();
+</script>
 </body>
 </html>
